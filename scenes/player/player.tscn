@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://btppunkvd0yrr"]
+[gd_scene format=3 uid="uid://h0xtmekwo3gx"]
 
-[ext_resource type="Script" path="res://player.gd" id="1_onrkg"]
-[ext_resource type="Texture2D" path="res://assets/player_sprites/idle_down.png" id="2_onrkg"]
+[ext_resource type="Script" uid="uid://d2xrd5i3m0b58" path="res://scenes/player/player.gd" id="1_onrkg"]
+[ext_resource type="Texture2D" uid="uid://fvhd6hkefm8g" path="res://assets/sprites/player/idle_down.png" id="2_onrkg"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_onrkg"]
 radius = 14.0

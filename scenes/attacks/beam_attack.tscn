@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://bjiaa8uwxtxs3"]
+[gd_scene format=3 uid="uid://dym63s8utdecs"]
 
-[ext_resource type="Script" path="res://beam_attack.gd" id="1_geov6"]
+[ext_resource type="Script" uid="uid://dmwwe82yn0age" path="res://scenes/attacks/beam_attack.gd" id="1_geov6"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_xgnsh"]
 radius = 14.0
