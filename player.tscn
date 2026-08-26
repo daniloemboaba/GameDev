@@ -13,6 +13,7 @@ script = ExtResource("1_onrkg")
 shape = SubResource("CircleShape2D_i3pqv")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=744378360]
+zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1156528441]
