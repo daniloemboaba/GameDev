@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://c3eb6sgqtm5qx"]
+
+[ext_resource type="PackedScene" uid="uid://h0xtmekwo3gx" path="res://player.tscn" id="1_ig7tw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ig7tw"]
+size = Vector2(1400, 60)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
+size = Vector2(80, 80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h2yge"]
+size = Vector2(200, 30)
+
+[node name="Main" type="Node2D" unique_id=1258538481]
+
+[node name="Player" parent="." unique_id=811521901 instance=ExtResource("1_ig7tw")]
+position = Vector2(250, 480)
+
+[node name="Ground" type="StaticBody2D" parent="." unique_id=235407411]
+position = Vector2(576, 600)
+
+[node name="ColorRect" type="ColorRect" parent="Ground" unique_id=1707990863]
+offset_left = -700.0
+offset_top = -30.0
+offset_right = 700.0
+offset_bottom = 30.0
+color = Color(0.15294118, 0.68235296, 0.3764706, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground" unique_id=345230117]
+shape = SubResource("RectangleShape2D_ig7tw")
+
+[node name="BoxObstacle" type="StaticBody2D" parent="." unique_id=1964933679]
+position = Vector2(600, 530)
+
+[node name="ColorRect" type="ColorRect" parent="BoxObstacle" unique_id=993866074]
+offset_left = -40.0
+offset_top = -40.0
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0.9019608, 0.49411765, 0.13333334, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoxObstacle" unique_id=473329392]
+shape = SubResource("RectangleShape2D_0xm2m")
+
+[node name="FloatingPlatform" type="StaticBody2D" parent="." unique_id=1860429832]
+position = Vector2(880, 400)
+
+[node name="ColorRect" type="ColorRect" parent="FloatingPlatform" unique_id=800481024]
+offset_left = -100.0
+offset_top = -15.0
+offset_right = 100.0
+offset_bottom = 15.0
+color = Color(0.20392157, 0.59607846, 0.85882354, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FloatingPlatform" unique_id=1561612964]
+shape = SubResource("RectangleShape2D_h2yge")
