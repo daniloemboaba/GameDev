@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://dym63s8utdecs"]
+
+[ext_resource type="Script" uid="uid://dmwwe82yn0age" path="res://beam_attack.gd" id="1_geov6"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xgnsh"]
+radius = 14.0
+
+[node name="BeamAttack" type="Area2D" unique_id=769628104]
+script = ExtResource("1_geov6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=593838586]
+shape = SubResource("CircleShape2D_xgnsh")

@@ -17,17 +17,27 @@ extends CharacterBody2D
 @export var zoom_step: float = 0.25
 var target_zoom: float = 2.0
 
-# Texturas das 8 Direções (Idle e Walk Cycles)
+# Cena do Ataque de Raio Roxo (Chidori + Kamehameha)
+var beam_scene: PackedScene = preload("res://beam_attack.tscn")
+
+# Dicionários de Texturas das 8 Direções
 var idle_textures: Dictionary = {}
-var walk_textures: Dictionary = {} # "down": [f0, f1, f2, f3, f4, f5, f6, f7], ...
+var walk_textures: Dictionary = {}
+var attack_textures: Dictionary = {}
 
 # Variáveis de Animação e Estado
 var current_direction: String = "down"
 var last_movement_direction: Vector2 = Vector2.DOWN
+
 var is_dashing: bool = false
 var dash_timer: float = 0.0
 var dash_cooldown_timer: float = 0.0
 var dash_direction: Vector2 = Vector2.DOWN
+
+var is_attacking: bool = false
+var attack_timer: float = 0.0
+var attack_duration: float = 0.3
+var attack_anim_fps: float = 14.0
 
 var walk_anim_timer: float = 0.0
 var walk_anim_fps: float = 12.0
@@ -37,6 +47,7 @@ var idle_breath_timer: float = 0.0
 @onready var camera: Camera2D = $Camera2D
 
 func _ready() -> void:
+	add_to_group("player")
 	target_zoom = default_zoom
 	if camera:
 		camera.zoom = Vector2(target_zoom, target_zoom)
@@ -44,13 +55,13 @@ func _ready() -> void:
 	
 	var dir_names := ["down", "down_right", "right", "up_right", "up", "up_left", "left", "down_left"]
 	
-	# Carrega as 8 texturas Idle
+	# 1. Carrega as 8 texturas Idle
 	for d in dir_names:
 		var path := "res://assets/player_sprites/idle_%s.png" % d
 		if ResourceLoader.exists(path):
 			idle_textures[d] = load(path)
 	
-	# Carrega os 8 frames de caminhada para cada uma das 8 direções
+	# 2. Carrega os frames de Caminhada (8 frames x 8 direções)
 	for d in dir_names:
 		walk_textures[d] = []
 		for f in range(8):
@@ -58,18 +69,67 @@ func _ready() -> void:
 			if ResourceLoader.exists(path):
 				walk_textures[d].append(load(path))
 	
+	# 3. Carrega os frames de Ataque
+	for d in dir_names:
+		attack_textures[d] = []
+		for f in range(4):
+			var path := "res://assets/player_sprites/attack_%s_%d.png" % [d, f]
+			if ResourceLoader.exists(path):
+				attack_textures[d].append(load(path))
+	
 	_update_sprite()
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Controle de Zoom com o Scroll do Mouse
+	# 1. Controle de Zoom com Scroll do Mouse
 	if event is InputEventMouseButton and event.is_pressed():
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			target_zoom = clampf(target_zoom + zoom_step, min_zoom, max_zoom)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			target_zoom = clampf(target_zoom - zoom_step, min_zoom, max_zoom)
+		elif event.button_index == MOUSE_BUTTON_LEFT:
+			# Verifica se o clique do mouse foi em cima de algum inimigo
+			_check_click_target_enemy(get_global_mouse_position())
+
+func _check_click_target_enemy(click_pos: Vector2) -> void:
+	var enemies := get_tree().get_nodes_in_group("enemy")
+	var closest_enemy: Node2D = null
+	var min_dist: float = 45.0 # Raio de clique no inimigo
+	
+	for enemy in enemies:
+		if is_instance_valid(enemy) and not enemy.get("is_dead"):
+			var d: float = enemy.global_position.distance_to(click_pos)
+			if d < min_dist:
+				min_dist = d
+				closest_enemy = enemy
+	
+	if closest_enemy != null:
+		cast_beam_attack(closest_enemy)
+
+func cast_beam_attack(target_enemy: Node2D) -> void:
+	if not is_instance_valid(target_enemy):
+		return
+	
+	# Vira o personagem na direção do alvo
+	var to_enemy := target_enemy.global_position - global_position
+	if to_enemy != Vector2.ZERO:
+		current_direction = _get_direction_name_from_vector(to_enemy)
+		last_movement_direction = to_enemy.normalized()
+	
+	# Inicia estado e animação de ataque
+	is_attacking = true
+	attack_timer = 0.0
+	
+	# Instancia e dispara o raio de energia roxo
+	if beam_scene:
+		var beam = beam_scene.instantiate()
+		get_parent().add_child(beam)
+		var spawn_offset := to_enemy.normalized() * 20.0 + Vector2(0, -15)
+		beam.setup(global_position + spawn_offset, target_enemy)
+	
+	_update_sprite()
 
 func _process(delta: float) -> void:
-	# Suavização do Zoom da Câmera
+	# Interpolação suave do Zoom da Câmera
 	if camera:
 		camera.zoom = camera.zoom.lerp(Vector2(target_zoom, target_zoom), 12.0 * delta)
 
@@ -83,6 +143,13 @@ func _physics_process(delta: float) -> void:
 		_process_dash(delta)
 		return
 	
+	# Processamento de Ataque
+	if is_attacking:
+		attack_timer += delta
+		_update_attack_animation()
+		if attack_timer >= attack_duration:
+			is_attacking = false
+	
 	# Leitura de movimento em 8 direções (WASD / Setas / Analógico)
 	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	
@@ -90,20 +157,17 @@ func _physics_process(delta: float) -> void:
 		last_movement_direction = input_vector.normalized()
 		velocity = velocity.move_toward(input_vector * speed, acceleration * delta)
 		
-		# Atualiza a direção que o personagem está olhando
-		current_direction = _get_direction_name_from_vector(input_vector)
-		
-		# Avança o ciclo de passos da caminhada (braços e pernas se movimentando)
-		walk_anim_timer += delta * walk_anim_fps
-		
-		_update_sprite(true)
+		if not is_attacking:
+			current_direction = _get_direction_name_from_vector(input_vector)
+			walk_anim_timer += delta * walk_anim_fps
+			_update_sprite(true)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 		walk_anim_timer = 0.0
 		
-		# Efeito sutil de respiração quando parado (idle)
-		idle_breath_timer += delta * 4.0
-		_update_sprite(false)
+		if not is_attacking:
+			idle_breath_timer += delta * 4.0
+			_update_sprite(false)
 	
 	# Ativação do Dash (Tecla E ou LT no controle Xbox)
 	if Input.is_action_just_pressed("dash") and dash_cooldown_timer <= 0.0:
@@ -112,8 +176,17 @@ func _physics_process(delta: float) -> void:
 	
 	move_and_slide()
 
-func _update_sprite(is_moving: bool = false) -> void:
+func _update_attack_animation() -> void:
 	if not sprite:
+		return
+	if attack_textures.has(current_direction) and attack_textures[current_direction].size() > 0:
+		var frames: Array = attack_textures[current_direction]
+		var frame_index := int(attack_timer * attack_anim_fps) % frames.size()
+		sprite.texture = frames[frame_index]
+		sprite.position.y = -25.0
+
+func _update_sprite(is_moving: bool = false) -> void:
+	if not sprite or is_attacking:
 		return
 	
 	if is_moving and walk_textures.has(current_direction) and walk_textures[current_direction].size() > 0:
