@@ -2,8 +2,15 @@
 .godot/
 /android/
 
-# Environment variables & secrets
+# Local Editor Addons (Godot AI MCP Bridge)
+addons/
+godot-ai-LICENSE.txt
+
+# Environment variables, credentials & secrets
 .env
 *.env
 .env.*
-
+*.json
+*.key
+*.pem
+*.secret
