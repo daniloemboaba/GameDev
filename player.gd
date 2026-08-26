@@ -10,15 +10,32 @@ extends CharacterBody2D
 @export var dash_duration: float = 0.15
 @export var dash_cooldown: float = 0.5
 
+# Texturas das 8 Direções (Montadas com Cabeça e Corpo)
+var textures: Dictionary = {}
+
 # Variáveis de Estado
+var current_direction_name: String = "down"
+var last_movement_direction: Vector2 = Vector2.DOWN
 var is_dashing: bool = false
 var dash_timer: float = 0.0
 var dash_cooldown_timer: float = 0.0
 var dash_direction: Vector2 = Vector2.DOWN
-var last_movement_direction: Vector2 = Vector2.DOWN
+var idle_time: float = 0.0
 
-@onready var visual: Node2D = $Visual
-@onready var sprite: Sprite2D = $Visual/Sprite2D
+@onready var sprite: Sprite2D = $Sprite2D
+
+func _ready() -> void:
+	# Carrega as 8 texturas de direção
+	textures["down"] = load("res://assets/player_sprites/idle_down.png")
+	textures["down_right"] = load("res://assets/player_sprites/idle_down_right.png")
+	textures["right"] = load("res://assets/player_sprites/idle_right.png")
+	textures["up_right"] = load("res://assets/player_sprites/idle_up_right.png")
+	textures["up"] = load("res://assets/player_sprites/idle_up.png")
+	textures["up_left"] = load("res://assets/player_sprites/idle_up_left.png")
+	textures["left"] = load("res://assets/player_sprites/idle_left.png")
+	textures["down_left"] = load("res://assets/player_sprites/idle_down_left.png")
+	
+	_update_sprite_direction("down")
 
 func _physics_process(delta: float) -> void:
 	# Atualiza cooldown do dash
@@ -30,20 +47,29 @@ func _physics_process(delta: float) -> void:
 		_process_dash(delta)
 		return
 	
-	# Leitura de movimento em 8 direções (WASD / Setas / Analógico)
+	# Leitura de movimento em 8 direções
 	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	
 	if input_vector != Vector2.ZERO:
 		last_movement_direction = input_vector.normalized()
 		velocity = velocity.move_toward(input_vector * speed, acceleration * delta)
 		
-		# Gira o rostinho/corpo do personagem na direção do movimento
-		if visual:
-			# Rotação suave e natural na direção que está andando
-			var target_angle := input_vector.angle()
-			visual.rotation = lerp_angle(visual.rotation, target_angle, 18.0 * delta)
+		# Determina a direção olhando para o vetor de movimento
+		var dir_name := _get_direction_name_from_vector(input_vector)
+		if dir_name != current_direction_name:
+			_update_sprite_direction(dir_name)
+		
+		# Efeito sutil de caminhada
+		idle_time += delta * 12.0
+		if sprite:
+			sprite.position.y = sin(idle_time) * 2.0
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+		
+		# Efeito sutil de respiração idle
+		idle_time += delta * 4.0
+		if sprite:
+			sprite.position.y = sin(idle_time) * 1.0
 	
 	# Ativação do Dash (Tecla E ou LT no controle Xbox)
 	if Input.is_action_just_pressed("dash") and dash_cooldown_timer <= 0.0:
@@ -51,6 +77,28 @@ func _physics_process(delta: float) -> void:
 		return
 	
 	move_and_slide()
+
+func _get_direction_name_from_vector(v: Vector2) -> String:
+	var angle := v.angle() # De -PI a +PI
+	var octant := int(round(8.0 * angle / (2.0 * PI))) % 8
+	if octant < 0:
+		octant += 8
+	
+	match octant:
+		0: return "right"
+		1: return "down_right"
+		2: return "down"
+		3: return "down_left"
+		4: return "left"
+		5: return "up_left"
+		6: return "up"
+		7: return "up_right"
+		_: return "down"
+
+func _update_sprite_direction(dir_name: String) -> void:
+	current_direction_name = dir_name
+	if sprite and textures.has(dir_name) and textures[dir_name] != null:
+		sprite.texture = textures[dir_name]
 
 func _start_dash(input_vector: Vector2) -> void:
 	is_dashing = true
@@ -64,9 +112,8 @@ func _start_dash(input_vector: Vector2) -> void:
 	
 	velocity = dash_direction * dash_speed
 	
-	# Efeito visual de dash (cor azulada brilhante)
 	if sprite:
-		sprite.modulate = Color(0.3, 0.9, 1.0, 0.8)
+		sprite.modulate = Color(0.4, 0.9, 1.0, 0.8)
 
 func _process_dash(delta: float) -> void:
 	dash_timer -= delta
