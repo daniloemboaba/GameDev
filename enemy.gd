@@ -7,28 +7,72 @@ extends CharacterBody2D
 
 var current_health: int = 2
 var is_dead: bool = false
-var is_flashing: bool = false
 var player_node: Node2D = null
+var is_hovered: bool = false
 
 @onready var visual: Node2D = $Visual
+@onready var body_rect: ColorRect = $Visual/Body
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 func _ready() -> void:
 	current_health = max_health
-	input_pickable = true # Permite detecção de clique do mouse sobre o inimigo
+	input_pickable = true
+	
+	if body_rect:
+		# Conecta eventos de mouse diretamente no quadrado visual para clique 100% preciso
+		body_rect.mouse_filter = Control.MOUSE_FILTER_PASS
+		body_rect.gui_input.connect(_on_body_gui_input)
+		body_rect.mouse_entered.connect(_on_mouse_entered)
+		body_rect.mouse_exited.connect(_on_mouse_exited)
 	
 	await get_tree().process_frame
 	var players := get_tree().get_nodes_in_group("player")
 	if players.size() > 0:
 		player_node = players[0]
 
+func _on_body_gui_input(event: InputEvent) -> void:
+	if is_dead:
+		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
+		_trigger_player_attack()
+
 func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
 	if is_dead:
 		return
-	# Clique com o botão esquerdo no inimigo
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
-		if is_instance_valid(player_node) and player_node.has_method("cast_beam_attack"):
-			player_node.cast_beam_attack(self)
+		_trigger_player_attack()
+
+func _on_mouse_entered() -> void:
+	if is_dead:
+		return
+	is_hovered = true
+	# Efeito visual de foco/mira ao passar o mouse por cima
+	if visual:
+		visual.scale = Vector2(1.1, 1.1)
+
+func _on_mouse_exited() -> void:
+	is_hovered = false
+	if visual and not is_dead:
+		visual.scale = Vector2(1.0, 1.0)
+
+func is_point_inside(global_pos: Vector2) -> bool:
+	if is_dead:
+		return false
+	# Detecção precisa de clique cobrindo todo o quadrado (e margem de tolerância de 32px)
+	var dist := global_position.distance_to(global_pos)
+	if dist <= 36.0:
+		return true
+	var local_pos := global_pos - global_position
+	return abs(local_pos.x) <= 28.0 and abs(local_pos.y) <= 28.0
+
+func _trigger_player_attack() -> void:
+	if not is_instance_valid(player_node):
+		var players := get_tree().get_nodes_in_group("player")
+		if players.size() > 0:
+			player_node = players[0]
+	
+	if is_instance_valid(player_node) and player_node.has_method("cast_beam_attack"):
+		player_node.cast_beam_attack(self)
 
 func _physics_process(delta: float) -> void:
 	if is_dead:
@@ -67,10 +111,9 @@ func take_damage(amount: int) -> void:
 		_hit_flash()
 
 func _hit_flash() -> void:
-	# Efeito de dano no 1º golpe (flash branco/roxo)
 	var tween := create_tween()
 	if visual:
-		visual.modulate = Color(2.0, 0.5, 2.0, 1.0)
+		visual.modulate = Color(2.2, 0.4, 2.2, 1.0)
 		tween.tween_property(visual, "modulate", Color.WHITE, 0.2)
 
 func _disintegrate() -> void:
@@ -88,7 +131,7 @@ func _disintegrate() -> void:
 		audio.play()
 		audio.finished.connect(audio.queue_free)
 	
-	# Partículas de desintegração (cinzas e energia roxa/plasma)
+	# Partículas de desintegração
 	var particles := CPUParticles2D.new()
 	get_parent().add_child(particles)
 	particles.global_position = global_position
@@ -98,14 +141,13 @@ func _disintegrate() -> void:
 	particles.amount = 55
 	particles.lifetime = 0.7
 	particles.spread = 180.0
-	particles.gravity = Vector2(0, -60) # Flutua para cima como cinzas
+	particles.gravity = Vector2(0, -60)
 	particles.initial_velocity_min = 80.0
 	particles.initial_velocity_max = 200.0
 	particles.scale_amount_min = 2.0
 	particles.scale_amount_max = 6.0
 	particles.color = Color(0.85, 0.3, 1.0, 0.95)
 	
-	# Animação de dissolução do corpo
 	if visual:
 		var tween := create_tween().set_parallel(true)
 		tween.tween_property(visual, "modulate", Color(1.5, 0.2, 1.8, 0.0), 0.55)

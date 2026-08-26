@@ -87,70 +87,68 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			target_zoom = clampf(target_zoom - zoom_step, min_zoom, max_zoom)
 		elif event.button_index == MOUSE_BUTTON_LEFT:
-			# Verifica se o clique do mouse foi em cima de algum inimigo
 			_check_click_target_enemy(get_global_mouse_position())
 
 func _check_click_target_enemy(click_pos: Vector2) -> void:
 	var enemies := get_tree().get_nodes_in_group("enemy")
-	var closest_enemy: Node2D = null
-	var min_dist: float = 45.0 # Raio de clique no inimigo
+	var best_target: Node2D = null
+	var min_dist: float = 60.0 # Hitbox generosa e precisa
 	
 	for enemy in enemies:
 		if is_instance_valid(enemy) and not enemy.get("is_dead"):
+			# Verifica se o clique está dentro do corpo do inimigo
+			if enemy.has_method("is_point_inside") and enemy.is_point_inside(click_pos):
+				best_target = enemy
+				break
+			
 			var d: float = enemy.global_position.distance_to(click_pos)
 			if d < min_dist:
 				min_dist = d
-				closest_enemy = enemy
+				best_target = enemy
 	
-	if closest_enemy != null:
-		cast_beam_attack(closest_enemy)
+	if best_target != null:
+		cast_beam_attack(best_target)
 
 func cast_beam_attack(target_enemy: Node2D) -> void:
 	if not is_instance_valid(target_enemy):
 		return
 	
-	# Vira o personagem na direção do alvo
+	# Vira o personagem na direção do inimigo
 	var to_enemy := target_enemy.global_position - global_position
 	if to_enemy != Vector2.ZERO:
 		current_direction = _get_direction_name_from_vector(to_enemy)
 		last_movement_direction = to_enemy.normalized()
 	
-	# Inicia estado e animação de ataque
 	is_attacking = true
 	attack_timer = 0.0
 	
-	# Instancia e dispara o raio de energia roxo
+	# Dispara o raio de energia roxo
 	if beam_scene:
 		var beam = beam_scene.instantiate()
 		get_parent().add_child(beam)
-		var spawn_offset := to_enemy.normalized() * 20.0 + Vector2(0, -15)
+		var spawn_offset := to_enemy.normalized() * 22.0 + Vector2(0, -15)
 		beam.setup(global_position + spawn_offset, target_enemy)
 	
 	_update_sprite()
 
 func _process(delta: float) -> void:
-	# Interpolação suave do Zoom da Câmera
 	if camera:
 		camera.zoom = camera.zoom.lerp(Vector2(target_zoom, target_zoom), 12.0 * delta)
 
 func _physics_process(delta: float) -> void:
-	# Atualiza cooldown do dash
 	if dash_cooldown_timer > 0.0:
 		dash_cooldown_timer -= delta
 	
-	# Processamento de Dash
 	if is_dashing:
 		_process_dash(delta)
 		return
 	
-	# Processamento de Ataque
 	if is_attacking:
 		attack_timer += delta
 		_update_attack_animation()
 		if attack_timer >= attack_duration:
 			is_attacking = false
 	
-	# Leitura de movimento em 8 direções (WASD / Setas / Analógico)
 	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	
 	if input_vector != Vector2.ZERO:
@@ -169,7 +167,6 @@ func _physics_process(delta: float) -> void:
 			idle_breath_timer += delta * 4.0
 			_update_sprite(false)
 	
-	# Ativação do Dash (Tecla E ou LT no controle Xbox)
 	if Input.is_action_just_pressed("dash") and dash_cooldown_timer <= 0.0:
 		_start_dash(input_vector)
 		return
