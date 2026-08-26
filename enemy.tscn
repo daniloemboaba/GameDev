@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://dgmvstirpsqy3"]
+
+[ext_resource type="Script" uid="uid://cfde4upjfda3b" path="res://enemy.gd" id="1_7k104"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_4gyqm"]
+radius = 24.0
+
+[node name="Enemy" type="CharacterBody2D" unique_id=772416570 groups=["enemy"]]
+script = ExtResource("1_7k104")
+
+[node name="Visual" type="Node2D" parent="." unique_id=2084321439]
+
+[node name="Body" type="ColorRect" parent="Visual" unique_id=841516191]
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
+color = Color(0.90588236, 0.29803923, 0.23529412, 1)
+
+[node name="EyeL" type="ColorRect" parent="Visual" unique_id=7162843]
+offset_left = 4.0
+offset_top = -12.0
+offset_right = 16.0
+offset_bottom = -4.0
+
+[node name="EyeR" type="ColorRect" parent="Visual" unique_id=160485436]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 16.0
+offset_bottom = 12.0
+
+[node name="PupilL" type="ColorRect" parent="Visual" unique_id=839174578]
+offset_left = 10.0
+offset_top = -10.0
+offset_right = 15.0
+offset_bottom = -5.0
+
+[node name="PupilR" type="ColorRect" parent="Visual" unique_id=1825733303]
+offset_left = 10.0
+offset_top = 6.0
+offset_right = 15.0
+offset_bottom = 11.0
+color = Color(0.06666667, 0.06666667, 0.06666667, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=370470222]
+shape = SubResource("CircleShape2D_4gyqm")

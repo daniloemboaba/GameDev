@@ -3,18 +3,46 @@
 [ext_resource type="Script" uid="uid://d2xrd5i3m0b58" path="res://player.gd" id="1_onrkg"]
 [ext_resource type="Texture2D" uid="uid://bp31bjmd8cx3b" path="res://icon.svg" id="2_i3pqv"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_onrkg"]
-size = Vector2(64, 64)
+[sub_resource type="CircleShape2D" id="CircleShape2D_onrkg"]
+radius = 28.0
 
-[node name="Player" type="CharacterBody2D" unique_id=811521901]
+[node name="Player" type="CharacterBody2D" unique_id=811521901 groups=["player"]]
 script = ExtResource("1_onrkg")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1156528441]
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("2_i3pqv")
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1650419948]
-shape = SubResource("RectangleShape2D_onrkg")
+shape = SubResource("CircleShape2D_onrkg")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=744378360]
 position_smoothing_enabled = true
+
+[node name="Visual" type="Node2D" parent="." unique_id=2021705237]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visual" unique_id=1156528441]
+scale = Vector2(0.45, 0.45)
+texture = ExtResource("2_i3pqv")
+
+[node name="EyeL" type="ColorRect" parent="Visual" unique_id=1551011182]
+offset_left = 10.0
+offset_top = -12.0
+offset_right = 22.0
+offset_bottom = -2.0
+
+[node name="EyeR" type="ColorRect" parent="Visual" unique_id=760926624]
+offset_left = 10.0
+offset_top = 2.0
+offset_right = 22.0
+offset_bottom = 12.0
+
+[node name="PupilL" type="ColorRect" parent="Visual" unique_id=1264824155]
+offset_left = 16.0
+offset_top = -9.0
+offset_right = 21.0
+offset_bottom = -4.0
+color = Color(0.06666667, 0.06666667, 0.06666667, 1)
+
+[node name="PupilR" type="ColorRect" parent="Visual" unique_id=371335883]
+offset_left = 16.0
+offset_top = 5.0
+offset_right = 21.0
+offset_bottom = 10.0
+color = Color(0.06666667, 0.06666667, 0.06666667, 1)
