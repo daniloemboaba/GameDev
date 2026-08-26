@@ -3,14 +3,17 @@
 [ext_resource type="Script" uid="uid://d2xrd5i3m0b58" path="res://player.gd" id="1_onrkg"]
 [ext_resource type="Texture2D" uid="uid://fvhd6hkefm8g" path="res://assets/player_sprites/idle_down.png" id="2_onrkg"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_i3pqv"]
-radius = 18.0
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_onrkg"]
+radius = 14.0
+height = 32.0
 
 [node name="Player" type="CharacterBody2D" unique_id=811521901 groups=["player"]]
+y_sort_enabled = true
 script = ExtResource("1_onrkg")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1650419948]
-shape = SubResource("CircleShape2D_i3pqv")
+position = Vector2(0, -15)
+shape = SubResource("CapsuleShape2D_onrkg")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=744378360]
 zoom = Vector2(2, 2)

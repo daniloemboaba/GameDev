@@ -6,6 +6,7 @@
 size = Vector2(52, 52)
 
 [node name="Enemy" type="CharacterBody2D" unique_id=772416570 groups=["enemy"]]
+y_sort_enabled = true
 input_pickable = true
 script = ExtResource("1_7k104")
 

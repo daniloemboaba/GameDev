@@ -1,17 +1,21 @@
 [gd_scene format=3 uid="uid://c3eb6sgqtm5qx"]
 
+[ext_resource type="Script" uid="uid://dox1gufxq6wq6" path="res://main.gd" id="1_1bvp3"]
 [ext_resource type="Texture2D" uid="uid://dvoqsivemb861" path="res://assets/ground.jpg" id="1_h2yge"]
 [ext_resource type="PackedScene" uid="uid://h0xtmekwo3gx" path="res://player.tscn" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://dgmvstirpsqy3" path="res://enemy.tscn" id="3_1bvp3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lquwl"]
-size = Vector2(64, 64)
+size = Vector2(64, 36)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7mycd"]
-size = Vector2(80, 80)
+size = Vector2(64, 36)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_272bh"]
-size = Vector2(90, 90)
+size = Vector2(80, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dg77c"]
+size = Vector2(90, 50)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5vw27"]
 size = Vector2(2048, 20)
@@ -26,8 +30,11 @@ size = Vector2(20, 2048)
 size = Vector2(20, 2048)
 
 [node name="Main" type="Node2D" unique_id=1258538481]
+y_sort_enabled = true
+script = ExtResource("1_1bvp3")
 
 [node name="GroundBackground" type="TextureRect" parent="." unique_id=1566023765]
+z_index = -10
 texture_repeat = 2
 offset_left = -1000.0
 offset_top = -1000.0
@@ -39,56 +46,60 @@ stretch_mode = 1
 [node name="Player" parent="." unique_id=811521901 instance=ExtResource("1_ig7tw")]
 
 [node name="Crate1" type="StaticBody2D" parent="." unique_id=109474688]
+y_sort_enabled = true
 position = Vector2(-180, -120)
 
 [node name="ColorRect" type="ColorRect" parent="Crate1" unique_id=188144105]
 offset_left = -32.0
-offset_top = -32.0
+offset_top = -64.0
 offset_right = 32.0
-offset_bottom = 32.0
 color = Color(0.5529412, 0.43137255, 0.3882353, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Crate1" unique_id=1440399013]
+position = Vector2(0, -18)
 shape = SubResource("RectangleShape2D_lquwl")
 
 [node name="Crate2" type="StaticBody2D" parent="." unique_id=652157250]
+y_sort_enabled = true
 position = Vector2(-180, -56)
 
 [node name="ColorRect" type="ColorRect" parent="Crate2" unique_id=1017792681]
 offset_left = -32.0
-offset_top = -32.0
+offset_top = -64.0
 offset_right = 32.0
-offset_bottom = 32.0
 color = Color(0.6313726, 0.53333336, 0.49803922, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Crate2" unique_id=17204509]
-shape = SubResource("RectangleShape2D_lquwl")
+position = Vector2(0, -18)
+shape = SubResource("RectangleShape2D_7mycd")
 
 [node name="RockObstacle1" type="StaticBody2D" parent="." unique_id=509108929]
+y_sort_enabled = true
 position = Vector2(260, 180)
 
 [node name="ColorRect" type="ColorRect" parent="RockObstacle1" unique_id=46304693]
 offset_left = -40.0
-offset_top = -40.0
+offset_top = -80.0
 offset_right = 40.0
-offset_bottom = 40.0
 color = Color(0.27058825, 0.3529412, 0.39215687, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RockObstacle1" unique_id=130153951]
-shape = SubResource("RectangleShape2D_7mycd")
+position = Vector2(0, -24)
+shape = SubResource("RectangleShape2D_272bh")
 
 [node name="StonePillar" type="StaticBody2D" parent="." unique_id=564546000]
+y_sort_enabled = true
 position = Vector2(200, -220)
 
 [node name="ColorRect" type="ColorRect" parent="StonePillar" unique_id=60717917]
 offset_left = -45.0
-offset_top = -45.0
+offset_top = -90.0
 offset_right = 45.0
-offset_bottom = 45.0
 color = Color(0.3764706, 0.49019608, 0.54509807, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StonePillar" unique_id=362430973]
-shape = SubResource("RectangleShape2D_272bh")
+position = Vector2(0, -25)
+shape = SubResource("RectangleShape2D_dg77c")
 
 [node name="BoundaryWalls" type="StaticBody2D" parent="." unique_id=1805861716]
 
