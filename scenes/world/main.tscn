@@ -6,16 +6,16 @@
 [ext_resource type="PackedScene" uid="uid://dgmvstirpsqy3" path="res://scenes/enemies/enemy.tscn" id="3_1bvp3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lquwl"]
-size = Vector2(64, 36)
+size = Vector2(64, 64)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7mycd"]
-size = Vector2(64, 36)
+size = Vector2(64, 64)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_272bh"]
-size = Vector2(80, 48)
+size = Vector2(80, 80)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dg77c"]
-size = Vector2(90, 50)
+size = Vector2(90, 90)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5vw27"]
 size = Vector2(2048, 20)
@@ -56,7 +56,7 @@ offset_right = 32.0
 color = Color(0.5529412, 0.43137255, 0.3882353, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Crate1" unique_id=1440399013]
-position = Vector2(0, -18)
+position = Vector2(0, -32)
 shape = SubResource("RectangleShape2D_lquwl")
 
 [node name="Crate2" type="StaticBody2D" parent="." unique_id=652157250]
@@ -70,7 +70,7 @@ offset_right = 32.0
 color = Color(0.6313726, 0.53333336, 0.49803922, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Crate2" unique_id=17204509]
-position = Vector2(0, -18)
+position = Vector2(0, -32)
 shape = SubResource("RectangleShape2D_7mycd")
 
 [node name="RockObstacle1" type="StaticBody2D" parent="." unique_id=509108929]
@@ -84,7 +84,7 @@ offset_right = 40.0
 color = Color(0.27058825, 0.3529412, 0.39215687, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RockObstacle1" unique_id=130153951]
-position = Vector2(0, -24)
+position = Vector2(0, -40)
 shape = SubResource("RectangleShape2D_272bh")
 
 [node name="StonePillar" type="StaticBody2D" parent="." unique_id=564546000]
@@ -98,7 +98,7 @@ offset_right = 45.0
 color = Color(0.3764706, 0.49019608, 0.54509807, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StonePillar" unique_id=362430973]
-position = Vector2(0, -25)
+position = Vector2(0, -45)
 shape = SubResource("RectangleShape2D_dg77c")
 
 [node name="BoundaryWalls" type="StaticBody2D" parent="." unique_id=1805861716]
